@@ -1,0 +1,27 @@
+version: 3
+# test
+projects:
+  # CMS Projects
+  - name: backend-dev
+    dir: ./backend/live/dev
+    autoplan:
+      when_modified: ["*.hcl", "../*.hcl", "../../**/*.tf", "*.yml"]
+    workflow: terragrunt
+workflows:
+  terragrunt:
+    plan:
+      steps:
+        - env:
+            # Reduce Terraform suggestion output
+            name: TF_IN_AUTOMATION
+            value: "true"
+        - run:
+            command: terragrunt plan -input=false -out=$PLANFILE
+            output: strip_refreshing
+    apply:
+      steps:
+        - env:
+            # Reduce Terraform suggestion output
+            name: TF_IN_AUTOMATION
+            value: "true"
+        - run: terragrunt apply $PLANFILE
